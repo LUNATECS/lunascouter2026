@@ -13,7 +13,6 @@ import AllianceSelectionModal from './components/Modals/AllianceSelectionModal'
 import QRCodeModal from './components/Modals/QRCodeModal'
 import DeletePackageModal from './components/Modals/DeletePackageModal'
 import PackageCreatedModal from './components/Modals/PackageCreatedModal'
-import FieldSelectionModal from './components/Modals/FieldSelectionModal'
 
 export default function App() {
   const { trigger } = useWebHaptics({ debug: true });
@@ -81,27 +80,11 @@ export default function App() {
   })
 
   const [allianceSelection, setAllianceSelection] = useState(initialState.allianceSelection || initialState.bannerSelection || '')
-  const [scoutName, setScoutName] = useState(initialState.scoutName || '')
   const [teams, setTeams] = useState(initialState.teams || [])
   
   // Tabs
   const [active, setActive] = useState('setup')
-
-  // Scouting State
-  const [autoFuelCollected, setAutoFuelCollected] = useState(initialState.autoFuelCollected || 'None') // 'Center', 'Human', 'Depot'
-  const [autoPosition, setAutoPosition] = useState(initialState.autoPosition || '') // '1', '2', '3', '4'
-  const [matchNumber, setMatchNumber] = useState(initialState.matchNumber || '')
-  const [autoLevel, setAutoLevel] = useState(initialState.autoLevel || 0) // 0,1,2,3
-  const [teleopLevel, setTeleopLevel] = useState(initialState.teleopLevel || 0) // 0,1,2,3
-  const [teleopNote, setTeleopNote] = useState(initialState.teleopNote || '')
-  const [movedFromStart, setMovedFromStart] = useState(initialState.movedFromStart || false)
-  const [autoScoredZeroFuel, setAutoScoredZeroFuel] = useState(initialState.autoScoredZeroFuel || false)
-  const [teleopScoredZeroFuel, setTeleopScoredZeroFuel] = useState(initialState.teleopScoredZeroFuel || false)
-  const [defense, setDefense] = useState(initialState.defense || false)
-  const [needsAttention, setNeedsAttention] = useState(initialState.needsAttention || false)
-  const [brokeDown, setBrokeDown] = useState(initialState.brokeDown || false)
-  const [relayedFuel, setRelayedFuel] = useState(initialState.relayedFuel || false)
-  const [selectedTeam, setSelectedTeam] = useState(initialState.selectedTeam ?? null)
+  const [isScoutingDirty, setIsScoutingDirty] = useState(false)
   
   // Modals State
   const [showAllianceModal, setShowAllianceModal] = useState(false)
@@ -110,7 +93,6 @@ export default function App() {
   const [qrPayload, setQrPayload] = useState('')
   const [showPackageModal, setShowPackageModal] = useState(false)
   const [packageToDelete, setPackageToDelete] = useState(null)
-  const [showFieldModal, setShowFieldModal] = useState(false)
 
   // Data State
   const [records, setRecords] = useState(initialState.records || []) 
@@ -175,28 +157,13 @@ export default function App() {
       const snapshot = { 
         teams, 
         records, 
-        allianceSelection, 
-        selectedTeam, 
-        scoutName,
-        matchNumber,
-        autoPosition,
-        autoFuelCollected,
-        autoLevel,
-        teleopLevel,
-        teleopNote,
-        movedFromStart,
-        autoScoredZeroFuel,
-        teleopScoredZeroFuel,
-        defense,
-        needsAttention,
-        brokeDown,
-        relayedFuel
+        allianceSelection
       }
       localStorage.setItem('luna_v2_state', JSON.stringify(snapshot))
     } catch (err) {
       console.warn('Failed to save state', err)
     }
-  }, [teams, records, allianceSelection, selectedTeam, scoutName])
+  }, [teams, records, allianceSelection])
 
   useEffect(() => {
     try {
@@ -230,79 +197,28 @@ export default function App() {
 
   const deleteTeam = (index) => {
     setTeams(prev => prev.filter((_, i) => i !== index))
-    setSelectedTeam(prevSel => {
-      if (prevSel === null || prevSel === '') return null
-      const si = Number(prevSel)
-      if (si === index) return null
-      if (si > index) return String(si - 1)
-      return String(si)
-    })
     trigger('warning')
   }
 
-  const handleTeleopSubmit = () => {
-    // Validate team selection first
-    if (selectedTeam === null || selectedTeam === '') {
-        toast.error('Please select a team before submitting.');
-        return;
-    }
-    if (!matchNumber) {
-        toast.error('Please enter a match number.');
-        return;
-    }
+  const handleTeleopSubmit = (formData) => {
+    trigger('success')
 
-    const teamObj = teams[Number(selectedTeam)] || {}
-    
     const rec = {
       // Top level fields
-      team: teamObj.number || '0000',
-      matchNumber: parseInt(matchNumber, 10) || 0,
+      team: formData.team || '0000',
+      matchNumber: formData.matchNumber || 0,
       position: allianceSelection, // e.g. "Red 1"
-      scoutName: scoutName || '',
+      scoutName: formData.scoutName || '',
       timestamp: Date.now(),
       discarded: false,
       
       // Values object
-      values: {
-        autoLevel,
-        autoPosition,
-        autoFuelCollected,
-        teleopLevel,
-        teleopNote,
-        movedFromStart,
-        autoScoredZeroFuel,
-        teleopScoredZeroFuel,
-        defense,
-        needsAttention,
-        brokeDown,
-        relayedFuel
-      }
+      values: formData.values
     }
     setRecords(prev => [...prev, rec])
-
-    // Reset Form
-    setMatchNumber(prev => {
-        if (!prev) return ''
-        const num = parseInt(prev, 10)
-        return isNaN(num) ? prev : String(num + 1)
-    })
-    setAutoLevel(0)
-    setAutoPosition('')
-    setAutoFuelCollected('None')
-    setTeleopLevel(0)
-    setTeleopNote('')
-    setMovedFromStart(false)
-    setAutoScoredZeroFuel(false)
-    setTeleopScoredZeroFuel(false)
-    setDefense(false)
-    setNeedsAttention(false)
-    setBrokeDown(false)
-    setRelayedFuel(false)
     
-    // Prepare for next match
-    setSelectedTeam('')
-    trigger('success')
     toast.success(`Match ${rec.matchNumber} submitted!`)
+    trigger('success')
   }
 
   const createPackage = () => {
@@ -364,6 +280,40 @@ export default function App() {
     a.href = url; a.download = `archive_${session.id}.csv`; a.click(); URL.revokeObjectURL(url)
   }
 
+  const handleTabChange = (newTab) => {
+    if (active === 'scout' && newTab !== 'scout' && isScoutingDirty) {
+      toast.warn(
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <span>Switching tabs will clear your current scouting data.</span>
+          <button 
+            onClick={() => {
+              setActive(newTab);
+              setIsScoutingDirty(false);
+              toast.dismiss();
+            }}
+            style={{
+              padding: '6px 12px',
+              background: '#ff4d4d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              alignSelf: 'flex-end'
+            }}
+          >
+            Clear and Continue
+          </button>
+        </div>,
+        { autoClose: false, closeOnClick: false }
+      );
+      trigger('warning');
+    } else {
+      setActive(newTab);
+      trigger('selection');
+    }
+  }
+
   return (
     <>
       <ToastContainer theme="dark" position="bottom-right" />
@@ -378,48 +328,18 @@ export default function App() {
       
       <div className={`app-root`} style={{paddingTop:48}}>
         <div className="tabs">
-          <div className={`tab ${active === 'setup' ? 'active' : ''}`} onClick={() => { setActive('setup'); trigger('selection'); }}>Setup</div>
-          <div className={`tab ${active === 'scout' ? 'active' : ''}`} onClick={() => { setActive('scout'); trigger('selection'); }}>Scout</div>
-          <div className={`tab ${active === 'sync' ? 'active' : ''}`} onClick={() => { setActive('sync'); trigger('selection'); }}>Packages</div>
+          <div className={`tab ${active === 'setup' ? 'active' : ''}`} onClick={() => handleTabChange('setup')}>Setup</div>
+          <div className={`tab ${active === 'scout' ? 'active' : ''}`} onClick={() => handleTabChange('scout')}>Scout</div>
+          <div className={`tab ${active === 'sync' ? 'active' : ''}`} onClick={() => handleTabChange('sync')}>Packages</div>
         </div>
 
         <div className={`panels ${active === 'setup' ? 'settings-two' : ''}`}>
           {active === 'scout' && (
             <ScoutingForm 
               teams={teams}
-              selectedTeam={selectedTeam}
-              setSelectedTeam={setSelectedTeam}
-              matchNumber={matchNumber}
-              setMatchNumber={setMatchNumber}
-              scoutName={scoutName}
-              setScoutName={setScoutName}
-              movedFromStart={movedFromStart}
-              setMovedFromStart={setMovedFromStart}
-              autoScoredZeroFuel={autoScoredZeroFuel}
-              setAutoScoredZeroFuel={setAutoScoredZeroFuel}
-              autoLevel={autoLevel}
-              setAutoLevel={setAutoLevel}
-              teleopScoredZeroFuel={teleopScoredZeroFuel}
-              setTeleopScoredZeroFuel={setTeleopScoredZeroFuel}
-              defense={defense}
-              setDefense={setDefense}
-              needsAttention={needsAttention}
-              setNeedsAttention={setNeedsAttention}
-              brokeDown={brokeDown}
-              setBrokeDown={setBrokeDown}
-              relayedFuel={relayedFuel}
-              setRelayedFuel={setRelayedFuel}
-              autoPosition={autoPosition}
-              setAutoPosition={setAutoPosition}
-              autoFuelCollected={autoFuelCollected}
-              setAutoFuelCollected={setAutoFuelCollected}
-              onOpenFieldModal={() => setShowFieldModal(true)}
-              teleopLevel={teleopLevel}
-              setTeleopLevel={setTeleopLevel}
-              teleopNote={teleopNote}
-              setTeleopNote={setTeleopNote}
               onSubmit={handleTeleopSubmit}
               trigger={trigger}
+              setIsDirty={setIsScoutingDirty}
             />
           )}
 
@@ -470,13 +390,6 @@ export default function App() {
         <AllianceSelectionModal 
             show={showAllianceModal} 
             onSelect={handleAllianceSelect} 
-        />
-
-        <FieldSelectionModal
-            show={showFieldModal}
-            onClose={() => setShowFieldModal(false)}
-            onSelect={setAutoPosition}
-            selectedPos={autoPosition}
         />
       </div>
     </>

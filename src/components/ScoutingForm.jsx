@@ -1,41 +1,141 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import FieldSelectionModal from './Modals/FieldSelectionModal'
+import { toast } from 'react-toastify'
 
 export default function ScoutingForm({
   teams,
-  selectedTeam,
-  setSelectedTeam,
-  matchNumber,
-  setMatchNumber,
-  movedFromStart,
-  setMovedFromStart,
-  autoScoredZeroFuel,
-  setAutoScoredZeroFuel,
-  autoLevel,
-  setAutoLevel,
-  teleopScoredZeroFuel,
-  setTeleopScoredZeroFuel,
-  defense,
-  setDefense,
-  needsAttention,
-  setNeedsAttention,
-  brokeDown,
-  setBrokeDown,
-  relayedFuel,
-  setRelayedFuel,
-  autoPosition,
-  setAutoPosition,
-  autoFuelCollected,
-  setAutoFuelCollected,
-  onOpenFieldModal,
-  teleopLevel,
-  setTeleopLevel,
-  teleopNote,
-  setTeleopNote,
   onSubmit,
-  scoutName,
-  setScoutName,
-  trigger
+  trigger,
+  setIsDirty
 }) {
+  // Local State initialized from localStorage if available
+  const [selectedTeam, setSelectedTeam] = useState(null)
+  
+  const [matchNumber, setMatchNumber] = useState(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('luna_v2_state') || '{}')
+      return stored.matchNumber || ''
+    } catch (e) { return '' }
+  })
+  
+  const [scoutName, setScoutName] = useState(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('luna_v2_state') || '{}')
+      return stored.scoutName || ''
+    } catch (e) { return '' }
+  })
+  
+  const [autoFuelCollected, setAutoFuelCollected] = useState('None')
+  const [autoPosition, setAutoPosition] = useState('')
+  const [autoLevel, setAutoLevel] = useState(0)
+  const [movedFromStart, setMovedFromStart] = useState(false)
+  const [autoScoredZeroFuel, setAutoScoredZeroFuel] = useState(false)
+  
+  const [teleopLevel, setTeleopLevel] = useState(0)
+  const [teleopNote, setTeleopNote] = useState('')
+  const [teleopScoredZeroFuel, setTeleopScoredZeroFuel] = useState(false)
+  const [defense, setDefense] = useState(false)
+  const [needsAttention, setNeedsAttention] = useState(false)
+  const [brokeDown, setBrokeDown] = useState(false)
+  const [relayedFuel, setRelayedFuel] = useState(false)
+
+  const [showFieldModal, setShowFieldModal] = useState(false)
+
+  // Persist scout name and match number
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('luna_v2_state') || '{}')
+      stored.scoutName = scoutName
+      stored.matchNumber = matchNumber
+      localStorage.setItem('luna_v2_state', JSON.stringify(stored))
+    } catch (e) {}
+  }, [scoutName, matchNumber])
+
+  // Check if form is dirty
+  useEffect(() => {
+    const isDirty = 
+      selectedTeam !== null ||
+      autoPosition !== '' ||
+      autoFuelCollected !== 'None' ||
+      autoLevel !== 0 ||
+      teleopLevel !== 0 ||
+      teleopNote !== '' ||
+      movedFromStart !== false ||
+      autoScoredZeroFuel !== false ||
+      teleopScoredZeroFuel !== false ||
+      defense !== false ||
+      needsAttention !== false ||
+      brokeDown !== false ||
+      relayedFuel !== false;
+    
+    setIsDirty(isDirty);
+  }, [
+    selectedTeam, autoPosition, autoFuelCollected, autoLevel, 
+    teleopLevel, teleopNote, movedFromStart, autoScoredZeroFuel, 
+    teleopScoredZeroFuel, defense, needsAttention, brokeDown, relayedFuel,
+    setIsDirty
+  ]);
+
+  const handleInternalSubmit = () => {
+    // Validate team selection first
+    if (selectedTeam === null || selectedTeam === '') {
+        toast.error('Please select a team before submitting.');
+        trigger('warning');
+        return;
+    }
+    if (!matchNumber) {
+        toast.error('Please enter a match number.');
+        trigger('warning');
+        return;
+    }
+
+    const teamObj = teams[Number(selectedTeam)] || {}
+    
+    const formData = {
+      team: teamObj.number || '0000',
+      matchNumber: parseInt(matchNumber, 10) || 0,
+      scoutName: scoutName || '',
+      values: {
+        autoLevel,
+        autoPosition,
+        autoFuelCollected,
+        teleopLevel,
+        teleopNote,
+        movedFromStart,
+        autoScoredZeroFuel,
+        teleopScoredZeroFuel,
+        defense,
+        needsAttention,
+        brokeDown,
+        relayedFuel
+      }
+    }
+
+    onSubmit(formData)
+
+    // Reset Form (except match number which increments and scout name which stays)
+    setMatchNumber(prev => {
+        if (!prev) return ''
+        const num = parseInt(prev, 10)
+        return isNaN(num) ? prev : String(num + 1)
+    })
+    
+    // Clear match-specific fields
+    setSelectedTeam(null)
+    setAutoLevel(0)
+    setAutoPosition('')
+    setAutoFuelCollected('None')
+    setTeleopLevel(0)
+    setTeleopNote('')
+    setMovedFromStart(false)
+    setAutoScoredZeroFuel(false)
+    setTeleopScoredZeroFuel(false)
+    setDefense(false)
+    setNeedsAttention(false)
+    setBrokeDown(false)
+    setRelayedFuel(false)
+  }
+
   return (
     <section className={`panel full scouting-area`}>
       <div className="scouting-header">
@@ -82,7 +182,7 @@ export default function ScoutingForm({
                 <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8}}>
                   <div style={{fontWeight:700}}>Starting Position</div>
                   <span 
-                    onClick={onOpenFieldModal}
+                    onClick={() => setShowFieldModal(true)}
                     style={{ 
                       fontSize: '11px', 
                       color: '#cffe00', 
@@ -221,8 +321,15 @@ export default function ScoutingForm({
         </div>
       </div>
       <div style={{marginTop: 32, display:'flex', justifyContent:'center'}}>
-        <button className="next-button" style={{width:'100%', maxWidth:'400px', minHeight:'60px', height:'auto', padding:'16px'}} onClick={() => { onSubmit(); trigger('success'); }}>Submit Match</button>
+        <button className="next-button" style={{width:'100%', maxWidth:'400px', minHeight:'60px', height:'auto', padding:'16px'}} onClick={handleInternalSubmit}>Submit Match</button>
       </div>
+
+      <FieldSelectionModal
+        show={showFieldModal}
+        onClose={() => setShowFieldModal(false)}
+        onSelect={setAutoPosition}
+        selectedPos={autoPosition}
+      />
     </section>
   )
 }
