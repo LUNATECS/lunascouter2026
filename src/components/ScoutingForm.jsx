@@ -38,6 +38,9 @@ export default function ScoutingForm({
   const [needsAttention, setNeedsAttention] = useState(false)
   const [brokeDown, setBrokeDown] = useState(false)
   const [relayedFuel, setRelayedFuel] = useState(false)
+  const [mobilityIssues, setMobilityIssues] = useState(0)
+  const [fieldCrossing, setFieldCrossing] = useState('None')
+  const [endgameScoredZeroFuel, setEndgameScoredZeroFuel] = useState(true)
 
   const [showFieldModal, setShowFieldModal] = useState(false)
 
@@ -66,13 +69,17 @@ export default function ScoutingForm({
       defense !== false ||
       needsAttention !== false ||
       brokeDown !== false ||
-      relayedFuel !== false;
+      relayedFuel !== false ||
+      mobilityIssues !== 0 ||
+      fieldCrossing !== 'None' ||
+      endgameScoredZeroFuel !== true;
     
     setIsDirty(isDirty);
   }, [
     selectedTeam, autoPosition, autoFuelCollected, autoLevel, 
     teleopLevel, teleopNote, movedFromStart, autoScoredZeroFuel, 
-    teleopScoredZeroFuel, defense, needsAttention, brokeDown, relayedFuel,
+    teleopScoredZeroFuel, defense, needsAttention, brokeDown, relayedFuel, mobilityIssues,
+    fieldCrossing, endgameScoredZeroFuel,
     setIsDirty
   ]);
 
@@ -107,7 +114,10 @@ export default function ScoutingForm({
         defense,
         needsAttention,
         brokeDown,
-        relayedFuel
+        relayedFuel,
+        mobilityIssues,
+        fieldCrossing,
+        endgameScoredZeroFuel
       }
     }
 
@@ -134,6 +144,9 @@ export default function ScoutingForm({
     setNeedsAttention(false)
     setBrokeDown(false)
     setRelayedFuel(false)
+    setMobilityIssues(0)
+    setFieldCrossing('None')
+    setEndgameScoredZeroFuel(true)
   }
 
   return (
@@ -282,6 +295,41 @@ export default function ScoutingForm({
                       <button className={`btn small yes-btn btn-multiline ${needsAttention===false?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setNeedsAttention(false); trigger('selection'); }}>Good Scouting</button>
                     </div>
                   </div>
+                  <div>
+                    <div style={{fontWeight:700, fontSize:'13px', marginBottom:4}}>Mobility Issues</div>
+                    <div style={{display:'flex', alignItems:'center', gap:12}}>
+                      <button 
+                        className="btn small" 
+                        style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+                        onClick={() => { setMobilityIssues(Math.max(0, mobilityIssues - 1)); trigger('selection'); }}
+                      >
+                        -
+                      </button>
+                      <div style={{fontSize: 24, fontWeight: 800, minWidth: 20, textAlign: 'center'}}>{mobilityIssues}</div>
+                      <button 
+                        className="btn small" 
+                        style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+                        onClick={() => { setMobilityIssues(mobilityIssues + 1); trigger('selection'); }}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                  <div style={{gridColumn: 'span 2'}}>
+                    <div style={{fontWeight:700, fontSize:'13px', marginBottom:4}}>Field Crossing</div>
+                    <div style={{display:'flex', gap:8}}>
+                      {['Trench', 'Bump', 'Both', 'None'].map(type => (
+                        <button 
+                          key={type} 
+                          className={`btn small btn-multiline ${fieldCrossing===type?'selected':''}`} 
+                          style={{flex:1, padding:'8px 4px'}}
+                          onClick={() => { setFieldCrossing(type); trigger('selection'); }}
+                        >
+                          {type}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -290,13 +338,20 @@ export default function ScoutingForm({
           <div className="teleop-panel">
             <div className="module-title">Endgame</div>
             <div className="endgame-content" style={{display:'flex', flexDirection:'column', gap:16}}>
-              <div>
-                <div style={{fontWeight:700, marginBottom:8}}>Tower Position</div>
-                <div className="level-buttons">
+              <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', columnGap:24, rowGap:8, alignItems: 'start'}}>
+                <div style={{fontWeight:700}}>Tower Position</div>
+                <div style={{fontWeight:700}}>Scoring</div>
+                
+                <div className="level-buttons" style={{marginTop:0, display:'flex', gap:8}}>
                   {[1,2,3].map(n => (
-                    <button key={n} className={`level-button ${teleopLevel===n? 'selected':''}`} onClick={() => { setTeleopLevel(n); trigger('selection'); }}>L{n}</button>
+                    <button key={n} className={`level-button ${teleopLevel===n? 'selected':''}`} style={{flex:1, minWidth:0, minHeight:'62px', fontSize:'24px', display:'flex', alignItems:'center', justifyContent:'center'}} onClick={() => { setTeleopLevel(n); trigger('selection'); }}>L{n}</button>
                   ))}
-                  <button className={`level-button ${teleopLevel===0? 'selected':''}`} onClick={() => { setTeleopLevel(0); trigger('selection'); }}>None</button>
+                  <button className={`level-button ${teleopLevel===0? 'selected':''}`} style={{flex:1, minWidth:0, minHeight:'62px', fontSize:'24px', display:'flex', alignItems:'center', justifyContent:'center'}} onClick={() => { setTeleopLevel(0); trigger('selection'); }}>None</button>
+                </div>
+
+                <div style={{display:'flex', gap:8}}>
+                  <button className={`btn small yes-btn btn-multiline ${endgameScoredZeroFuel===false?'selected':''}`} style={{flex:1, minHeight:'62px', margin: 0}} onClick={() => { setEndgameScoredZeroFuel(false); trigger('selection'); }}>Scored Fuel</button>
+                  <button className={`btn small no-btn btn-multiline ${endgameScoredZeroFuel===true?'selected':''}`} style={{flex:1, minHeight:'62px', margin: 0}} onClick={() => { setEndgameScoredZeroFuel(true); trigger('selection'); }}>Zero Fuel</button>
                 </div>
               </div>
               <div>
