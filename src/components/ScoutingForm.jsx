@@ -29,7 +29,7 @@ export default function ScoutingForm({
   const [autoPosition, setAutoPosition] = useState('')
   const [autoLevel, setAutoLevel] = useState(0)
   const [movedFromStart, setMovedFromStart] = useState(false)
-  const [autoScoredZeroFuel, setAutoScoredZeroFuel] = useState(false)
+  const [autoScoredZeroFuel, setAutoScoredZeroFuel] = useState(true)
   
   const [teleopLevel, setTeleopLevel] = useState(0)
   const [teleopNote, setTeleopNote] = useState('')
@@ -61,7 +61,7 @@ export default function ScoutingForm({
       teleopLevel !== 0 ||
       teleopNote !== '' ||
       movedFromStart !== false ||
-      autoScoredZeroFuel !== false ||
+      autoScoredZeroFuel !== true ||
       teleopScoredZeroFuel !== false ||
       defense !== false ||
       needsAttention !== false ||
@@ -128,7 +128,7 @@ export default function ScoutingForm({
     setTeleopLevel(0)
     setTeleopNote('')
     setMovedFromStart(false)
-    setAutoScoredZeroFuel(false)
+    setAutoScoredZeroFuel(true)
     setTeleopScoredZeroFuel(false)
     setDefense(false)
     setNeedsAttention(false)
@@ -212,8 +212,8 @@ export default function ScoutingForm({
 
               <div className="row small-row" style={{marginTop:8}}>
                 <div style={{display:'flex', gap:8, width:'100%'}}>
-                  <button className={`btn small no-btn btn-multiline ${autoScoredZeroFuel===true?'selected':''}`} onClick={() => { setAutoScoredZeroFuel(true); trigger('selection'); }}>Zero Fuel</button>
                   <button className={`btn small yes-btn btn-multiline ${autoScoredZeroFuel===false?'selected':''}`} onClick={() => { setAutoScoredZeroFuel(false); trigger('selection'); }}>Scored Fuel</button>
+                  <button className={`btn small no-btn btn-multiline ${autoScoredZeroFuel===true?'selected':''}`} onClick={() => { setAutoScoredZeroFuel(true); trigger('selection'); }}>Zero Fuel</button>
                 </div>
               </div>
 
