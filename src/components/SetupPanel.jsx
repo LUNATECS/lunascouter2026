@@ -175,6 +175,9 @@ export default function SetupPanel({
                 <div style={{fontSize:12, opacity:0.6, textAlign:'center'}}>
                   Use this if you are not seeing the latest updates.
                 </div>
+                <div style={{fontSize:12, opacity:0.4, marginTop: 4}}>
+                  App Version: {APP_VERSION}
+                </div>
             </div>
             </section>
         </div>

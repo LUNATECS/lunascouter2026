@@ -38,4 +38,7 @@ export default defineConfig({
     // Allow ngrok-free.app domains to access the server
     allowedHosts: ['.ngrok-free.app'],
   },
+  define: {
+    APP_VERSION: JSON.stringify(process.env.npm_package_version),
+  }
 })
