@@ -91,6 +91,11 @@ export default function App() {
   const [showQRModal, setShowQRModal] = useState(false)
   const [qrBaseUrl, setQrBaseUrl] = useState('')
   const [qrPayload, setQrPayload] = useState('')
+  const [qrSettings, setQrSettings] = useState({
+    title: 'Share Team List',
+    message: 'Scan this code with another device to import the team list.',
+    includeUrl: true
+  })
   const [showPackageModal, setShowPackageModal] = useState(false)
   const [packageToDelete, setPackageToDelete] = useState(null)
 
@@ -187,6 +192,11 @@ export default function App() {
     const payload = encodeURIComponent(btoa(rawPayload))
     setQrPayload(payload)
     setQrBaseUrl(`${window.location.origin}${window.location.pathname}`)
+    setQrSettings({
+      title: 'Share Team List',
+      message: 'Scan this code with another device to import the team list.',
+      includeUrl: true
+    })
     setShowQRModal(true)
   }
 
@@ -280,6 +290,48 @@ export default function App() {
     a.href = url; a.download = `archive_${session.id}.csv`; a.click(); URL.revokeObjectURL(url)
   }
 
+  const handleSharePackage = (session) => {
+    try {
+      const payload = session.data.map(r => {
+        // Handle new schema
+        if (r.values) {
+          const teamObj = teams.find(t => t.number === r.team) || {}
+          return {
+            ...r,
+            teamName: teamObj.name || 'Unnamed'
+          }
+        }
+        
+        // Handle old schema
+        const team = teams[r.teamIndex] || {}
+        return {
+          ...r,
+          teamName: team.name || 'Unnamed',
+          teamNumber: team.number || '-'
+        }
+      })
+
+      const jsonStr = JSON.stringify(payload)
+      // Safe Base64 encoding for UTF-8 using Uint8Array
+      const encoder = new TextEncoder()
+      const data = encoder.encode(jsonStr)
+      // Convert Uint8Array to binary string
+      const binString = Array.from(data, (byte) => String.fromCodePoint(byte)).join('')
+      const b64 = btoa(binString)
+      
+      setQrPayload(b64)
+      setQrSettings({
+        title: 'Package Data QR',
+        message: 'Scan this code to transmit package data.',
+        includeUrl: false
+      })
+      setShowQRModal(true)
+    } catch (e) {
+      console.error(e)
+      alert('Failed to generate QR code: ' + e.message)
+    }
+  }
+
   const handleTabChange = (newTab) => {
     if (active === 'scout' && newTab !== 'scout' && isScoutingDirty) {
       toast.warn(
@@ -353,6 +405,7 @@ export default function App() {
               onDeleteArchive={deleteArchiveSession}
               onExportArchiveJSON={exportArchiveJSON}
               onExportArchiveCSV={exportArchiveCSV}
+              onExportArchiveQR={handleSharePackage}
             />
           )}
 
@@ -374,6 +427,9 @@ export default function App() {
             onClose={() => setShowQRModal(false)}
             payload={qrPayload}
             initialBaseUrl={qrBaseUrl}
+            title={qrSettings.title}
+            message={qrSettings.message}
+            includeUrl={qrSettings.includeUrl}
         />
 
         <DeletePackageModal 
