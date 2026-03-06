@@ -256,26 +256,7 @@ export default function App() {
     setPackageToDelete(null)
   }
 
-  const exportArchiveJSON = (session) => {
-    const payload = session.data.map(r => {
-      // Handle new schema
-      if (r.values) {
-        // Find team name if possible
-        const teamObj = teams.find(t => t.number === r.team) || {}
-        return {
-          ...r,
-          teamName: teamObj.name || 'Unnamed'
-        }
-      }
-      
-      // Handle old schema
-      const team = teams[r.teamIndex] || {}
-      return {
-        ...r,
-        teamName: team.name || 'Unnamed',
-        teamNumber: team.number || '-'
-      }
-    })
+  const exportArchiveJSON = (payload) => {
     const dataStr = JSON.stringify(payload, null, 2)
     const blob = new Blob([dataStr], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -291,27 +272,8 @@ export default function App() {
     a.href = url; a.download = `archive_${session.id}.csv`; a.click(); URL.revokeObjectURL(url)
   }
 
-  const handleSharePackage = (session) => {
+  const handleSharePackage = (payload) => {
     try {
-      const payload = session.data.map(r => {
-        // Handle new schema
-        if (r.values) {
-          const teamObj = teams.find(t => t.number === r.team) || {}
-          return {
-            ...r,
-            teamName: teamObj.name || 'Unnamed'
-          }
-        }
-        
-        // Handle old schema
-        const team = teams[r.teamIndex] || {}
-        return {
-          ...r,
-          teamName: team.name || 'Unnamed',
-          teamNumber: team.number || '-'
-        }
-      })
-
       const jsonStr = JSON.stringify(payload)
       // Safe Base64 encoding for UTF-8 using Uint8Array
       const encoder = new TextEncoder()
