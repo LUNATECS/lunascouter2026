@@ -5,6 +5,7 @@ import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { toCSV } from './utils/csvHelpers'
 import { v4 as uuidv4 } from 'uuid'
+import { useStore } from './store'
 
 // Components
 import SetupPanel from './components/SetupPanel'
@@ -72,17 +73,19 @@ export default function App() {
     }
   }, [needRefresh]);
 
-  // Persistence: Load initial state from localStorage synchronously
-  const [initialState] = useState(() => {
-    try {
-      const raw = localStorage.getItem('luna_v2_state')
-      return raw ? JSON.parse(raw) : {}
-    } catch (e) { return {} }
-  })
+  // Global State from Zustand
+  const teams = useStore(state => state.teams)
+  const setTeams = useStore(state => state.setTeams)
+  const records = useStore(state => state.records)
+  const setRecords = useStore(state => state.setRecords)
+  const clearRecords = useStore(state => state.clearRecords)
+  const archives = useStore(state => state.archives)
+  const setArchives = useStore(state => state.setArchives)
+  const addArchive = useStore(state => state.addArchive)
+  const deleteArchive = useStore(state => state.deleteArchive)
+  const allianceSelection = useStore(state => state.allianceSelection)
+  const setAllianceSelection = useStore(state => state.setAllianceSelection)
 
-  const [allianceSelection, setAllianceSelection] = useState(initialState.allianceSelection || initialState.bannerSelection || '')
-  const [teams, setTeams] = useState(initialState.teams || [])
-  
   // Tabs
   const [active, setActive] = useState('setup')
   const [isScoutingDirty, setIsScoutingDirty] = useState(false)
@@ -100,15 +103,6 @@ export default function App() {
   const [showPackageModal, setShowPackageModal] = useState(false)
   const [packageToDelete, setPackageToDelete] = useState(null)
 
-  // Data State
-  const [records, setRecords] = useState(initialState.records || []) 
-  const [archives, setArchives] = useState(() => {
-    try {
-      const raw = localStorage.getItem('luna_v2_archives')
-      return raw ? JSON.parse(raw) : (initialState.archives || [])
-    } catch (e) { return [] }
-  }) 
-
   // Initial Alliance Check
   useEffect(() => {
     if (!allianceSelection) {
@@ -125,19 +119,23 @@ export default function App() {
         const decoded = JSON.parse(atob(importedData))
         if (Array.isArray(decoded) && decoded.length > 0) {
           if (window.confirm(`Found ${decoded.length} teams in URL. Do you want to IMPORT them? \n\nClick OK to Append to existing list, Cancel to Replace existing list.`)) {
-             setTeams(prev => {
-               const existingNums = new Set(prev.map(t => t.number))
-               const newTeams = decoded.filter(t => !existingNums.has(t.number))
-               const count = newTeams.length
-               if (count === 0) alert('All teams in link already exist.')
-               else alert(`Imported ${count} new teams.`)
-               const combined = [...prev, ...newTeams]
-               return combined.sort((a, b) => {
+             // We need to use functional update based on current state, 
+             // but with Zustand we can just grab current state or pass a function to setTeams if it supported it.
+             // Our setTeams is simple. We can use the store's current state.
+             const currentTeams = useStore.getState().teams
+             const existingNums = new Set(currentTeams.map(t => t.number))
+             const newTeams = decoded.filter(t => !existingNums.has(t.number))
+             const count = newTeams.length
+             if (count === 0) alert('All teams in link already exist.')
+             else alert(`Imported ${count} new teams.`)
+             
+             const combined = [...currentTeams, ...newTeams].sort((a, b) => {
                    const numA = parseInt(a.number, 10) || 0;
                    const numB = parseInt(b.number, 10) || 0;
                    return numA - numB;
-               });
-             })
+             });
+             setTeams(combined)
+
           } else {
              if (window.confirm("Do you want to REPLACE your current team list with these teams? This cannot be undone.")) {
                 const sorted = decoded.sort((a, b) => {
@@ -156,29 +154,6 @@ export default function App() {
       window.history.replaceState({}, document.title, window.location.pathname)
     }
   }, [])
-
-  // Persistence Effects
-  useEffect(() => {
-    try {
-      const snapshot = { 
-        teams, 
-        records, 
-        allianceSelection
-      }
-      localStorage.setItem('luna_v2_state', JSON.stringify(snapshot))
-    } catch (err) {
-      console.warn('Failed to save state', err)
-    }
-  }, [teams, records, allianceSelection])
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('luna_v2_archives', JSON.stringify(archives))
-    } catch (err) {
-      console.warn('Failed to save archives', err)
-    }
-  }, [archives])
-
 
   // Handlers
   const handleShareTeams = () => {
@@ -206,32 +181,6 @@ export default function App() {
       setShowAllianceModal(false)
   }
 
-  const deleteTeam = (index) => {
-    setTeams(prev => prev.filter((_, i) => i !== index))
-    trigger('warning')
-  }
-
-  const handleTeleopSubmit = (formData) => {
-    trigger('success')
-
-    const rec = {
-      // Top level fields
-      team: formData.team || '0000',
-      matchNumber: formData.matchNumber || 0,
-      position: allianceSelection, // e.g. "Red 1"
-      scoutName: formData.scoutName || '',
-      timestamp: Date.now(),
-      discarded: false,
-      
-      // Values object
-      values: formData.values
-    }
-    setRecords(prev => [...prev, rec])
-    
-    toast.success(`Match ${rec.matchNumber} submitted!`)
-    trigger('success')
-  }
-
   const createPackage = () => {
     if (records.length === 0) return
     if (!window.confirm('Create a package from current records? This will clear the current data view.')) return
@@ -241,8 +190,8 @@ export default function App() {
       timestamp: new Date().toISOString(),
       data: [...records]
     }
-    setArchives(prev => [session, ...prev])
-    setRecords([])
+    addArchive(session)
+    clearRecords()
     setShowPackageModal(true)
     trigger('success')
   }
@@ -252,12 +201,12 @@ export default function App() {
   }
   
   const confirmDeletePackage = () => {
-    setArchives(prev => prev.filter(s => s.id !== packageToDelete))
+    deleteArchive(packageToDelete)
     setPackageToDelete(null)
   }
 
-  const exportArchiveJSON = (payload) => {
-    const dataStr = JSON.stringify(payload, null, 2)
+  const exportArchiveJSON = (session) => {
+    const dataStr = JSON.stringify(session, null, 2)
     const blob = new Blob([dataStr], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -351,8 +300,6 @@ export default function App() {
         <div className={`panels ${active === 'setup' ? 'settings-two' : ''}`}>
           {active === 'scout' && (
             <ScoutingForm 
-              teams={teams}
-              onSubmit={handleTeleopSubmit}
               trigger={trigger}
               setIsDirty={setIsScoutingDirty}
             />
@@ -360,10 +307,6 @@ export default function App() {
 
           {active === 'sync' && (
             <DataManager 
-              records={records}
-              setRecords={setRecords}
-              archives={archives}
-              teams={teams}
               onCreatePackage={createPackage}
               onDeleteArchive={deleteArchiveSession}
               onExportArchiveJSON={exportArchiveJSON}
@@ -374,12 +317,7 @@ export default function App() {
 
           {active === 'setup' && (
             <SetupPanel 
-              teams={teams}
-              setTeams={setTeams}
-              allianceSelection={allianceSelection}
-              setAllianceSelection={setAllianceSelection}
               onShare={handleShareTeams}
-              onDeleteTeam={deleteTeam}
             />
           )}
         </div>

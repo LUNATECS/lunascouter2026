@@ -1,16 +1,23 @@
 import React, { useState } from 'react'
+import { useStore } from '../store'
 
 export default function DataManager({
-  records,
-  setRecords,
-  archives,
-  teams,
   onCreatePackage,
   onDeleteArchive,
   onExportArchiveJSON,
   onExportArchiveCSV,
   onExportArchiveQR
 }) {
+  const records = useStore(state => state.records)
+  const setRecords = useStore(state => state.setRecords)
+  const archives = useStore(state => state.archives)
+  const teams = useStore(state => state.teams)
+  
+  // Also grab specific actions if needed, though setRecords covers bulk updates
+  // But using toggleRecordDiscard is cleaner
+  const toggleRecordDiscard = useStore(state => state.toggleRecordDiscard)
+  const updateRecordNote = useStore(state => state.updateRecordNote)
+
   const [editingNoteIndex, setEditingNoteIndex] = useState(null)
   const [editingNoteContent, setEditingNoteContent] = useState('')
 
@@ -116,14 +123,7 @@ export default function DataManager({
                           <button className="btn small" onClick={(e) => {
                             e.stopPropagation()
                             const realIndex = records.length - 1 - idx
-                            const newRecords = [...records]
-                            // Handle Schema
-                            if (newRecords[realIndex].values) {
-                                newRecords[realIndex].values.teleopNote = editingNoteContent
-                            } else {
-                                newRecords[realIndex].teleopNote = editingNoteContent
-                            }
-                            setRecords(newRecords)
+                            updateRecordNote(realIndex, editingNoteContent)
                             setEditingNoteIndex(null)
                           }}>Save</button>
                           <button className="btn small" style={{background:'transparent', border:'1px solid rgba(255,255,255,0.3)'}} onClick={(e) => {
@@ -150,20 +150,8 @@ export default function DataManager({
                         className="btn small" 
                         style={{marginTop:12, borderColor: isDiscarded ? 'var(--muted)' : 'rgba(255,80,80,0.5)', color: isDiscarded ? 'var(--muted)' : '#ffb3b3'}}
                         onClick={() => {
-                            const newRecords = [...records]
                             const realIndex = records.length - 1 - idx
-                            
-                            // Toggle at top level for new structure preference
-                            // We need to ensure we don't duplicate state if it's in values
-                            if (newRecords[realIndex].discarded === undefined && newRecords[realIndex].values && newRecords[realIndex].values.discarded !== undefined) {
-                                // Migrate to top level on toggle
-                                newRecords[realIndex].discarded = !newRecords[realIndex].values.discarded
-                                delete newRecords[realIndex].values.discarded
-                            } else {
-                                newRecords[realIndex].discarded = !isDiscarded
-                            }
-                            
-                            setRecords(newRecords)
+                            toggleRecordDiscard(realIndex)
                         }}
                     >
                         {isDiscarded ? 'Restore' : 'Discard'}
@@ -186,7 +174,7 @@ export default function DataManager({
                   <div style={{fontWeight:700,fontSize:15}}>Archive Session - {new Date(session.timestamp).toLocaleString()}</div>
                   <div style={{color:'var(--muted)',fontSize:13,marginTop:4}}>{session.data.length} records in this session</div>
                 </div>
-                <div style={{display:'flex',gap:8}}>
+                <div style={{display:'flex',gap:8, alignItems:'center'}}>
                   <button className="btn small" onClick={() => onExportArchiveQR(session)}>QR</button>
                   <button className="btn small" onClick={() => onExportArchiveJSON(session)}>JSON</button>
                   <button className="btn small" onClick={() => onExportArchiveCSV(session)}>CSV</button>

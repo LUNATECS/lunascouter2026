@@ -1,14 +1,16 @@
 import React, { useState, useRef } from 'react'
 import { parseCSV } from '../utils/csvHelpers'
+import { useStore } from '../store'
 
 export default function SetupPanel({ 
-  teams, 
-  setTeams, 
-  allianceSelection, 
-  setAllianceSelection,
   onShare, 
-  onDeleteTeam 
 }) {
+  const teams = useStore(state => state.teams)
+  const setTeams = useStore(state => state.setTeams)
+  const allianceSelection = useStore(state => state.allianceSelection)
+  const setAllianceSelection = useStore(state => state.setAllianceSelection)
+  const deleteTeam = useStore(state => state.deleteTeam)
+  
   const [name, setName] = useState('')
   const [number, setNumber] = useState('')
   const importInputRef = useRef(null)
@@ -198,7 +200,7 @@ export default function SetupPanel({
                     <div className="team-number">{t.number}</div>
                     </div>
                     <div>
-                    <button className="delete-btn" onClick={() => onDeleteTeam(i)}>Delete</button>
+                    <button className="delete-btn" onClick={() => deleteTeam(i)}>Delete</button>
                     </div>
                 </div>
                 ))

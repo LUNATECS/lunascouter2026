@@ -1,29 +1,23 @@
 import React, { useState, useEffect } from 'react'
 import FieldSelectionModal from './Modals/FieldSelectionModal'
 import { toast } from 'react-toastify'
+import { useStore } from '../store'
 
 export default function ScoutingForm({
-  teams,
-  onSubmit,
   trigger,
   setIsDirty
 }) {
+  const teams = useStore(state => state.teams)
+  const allianceSelection = useStore(state => state.allianceSelection)
+  const addRecord = useStore(state => state.addRecord)
+  
+  const matchNumber = useStore(state => state.matchNumber)
+  const setMatchNumber = useStore(state => state.setMatchNumber)
+  const scoutName = useStore(state => state.scoutName)
+  const setScoutName = useStore(state => state.setScoutName)
+
   // Local State initialized from localStorage if available
   const [selectedTeam, setSelectedTeam] = useState(null)
-  
-  const [matchNumber, setMatchNumber] = useState(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem('luna_v2_state') || '{}')
-      return stored.matchNumber || ''
-    } catch (e) { return '' }
-  })
-  
-  const [scoutName, setScoutName] = useState(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem('luna_v2_state') || '{}')
-      return stored.scoutName || ''
-    } catch (e) { return '' }
-  })
   
   const [autoFuelCollected, setAutoFuelCollected] = useState('None')
   const [autoPosition, setAutoPosition] = useState(0)
@@ -44,15 +38,7 @@ export default function ScoutingForm({
 
   const [showFieldModal, setShowFieldModal] = useState(false)
 
-  // Persist scout name and match number
-  useEffect(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem('luna_v2_state') || '{}')
-      stored.scoutName = scoutName
-      stored.matchNumber = matchNumber
-      localStorage.setItem('luna_v2_state', JSON.stringify(stored))
-    } catch (e) {}
-  }, [scoutName, matchNumber])
+  // Persist scout name and match number - handled by store now
 
   // Check if form is dirty
   useEffect(() => {
@@ -98,10 +84,16 @@ export default function ScoutingForm({
 
     const teamObj = teams[Number(selectedTeam)] || {}
     
-    const formData = {
+    const rec = {
+      // Top level fields
       team: teamObj.number || '0000',
       matchNumber: parseInt(matchNumber, 10) || 0,
+      position: allianceSelection, // e.g. "Red 1"
       scoutName: scoutName || '',
+      timestamp: Date.now(),
+      discarded: false,
+      
+      // Values object
       values: {
         autoLevel,
         autoPosition,
@@ -120,15 +112,14 @@ export default function ScoutingForm({
         endgameScoredZeroFuel
       }
     }
-
-    onSubmit(formData)
+    
+    addRecord(rec)
+    toast.success(`Match ${rec.matchNumber} submitted!`)
+    trigger('success')
 
     // Reset Form (except match number which increments and scout name which stays)
-    setMatchNumber(prev => {
-        if (!prev) return ''
-        const num = parseInt(prev, 10)
-        return isNaN(num) ? prev : String(num + 1)
-    })
+    const nextMatch = parseInt(matchNumber, 10)
+    setMatchNumber(isNaN(nextMatch) ? matchNumber : String(nextMatch + 1))
     
     // Clear match-specific fields
     setSelectedTeam(null)
