@@ -46,7 +46,23 @@ This document defines the structure and possible values for match scouting data 
 
 ---
 
-## Example JSON Blob
+## Package / Session Payload
+
+When sharing data via QR code or exporting to JSON, the data is wrapped in a session object:
+
+```jsonc
+{
+  "id": "uuid-string", // Unique session ID
+  "timestamp": "ISO-8601-Date-String", // Creation time
+  "data": [
+    // Array of match record objects (see Schema above)
+    { "team": "254", "matchNumber": 42, "values": { ... } },
+    { "team": "1678", "matchNumber": 43, "values": { ... } }
+  ]
+}
+```
+
+## Example JSON Blob (Single Record)
 
 ```jsonc
 {
