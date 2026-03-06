@@ -11,22 +11,24 @@ export default function SetupPanel({
   const setAllianceSelection = useStore(state => state.setAllianceSelection)
   const deleteTeam = useStore(state => state.deleteTeam)
   
+  const addTeam = useStore(state => state.addTeam)
+  
   const [name, setName] = useState('')
   const [number, setNumber] = useState('')
   const importInputRef = useRef(null)
 
-  const addTeam = () => {
+  const handleAddTeam = () => {
     const n = name.trim()
     const num = number.trim()
     if (!n && !num) return
-    setTeams(prev => {
-        const newTeams = [...prev, { name: n || 'Unnamed', number: num || '-' }]
-        return newTeams.sort((a, b) => {
-            const numA = parseInt(a.number, 10) || 0;
-            const numB = parseInt(b.number, 10) || 0;
-            return numA - numB;
-        });
-    })
+    
+    // Check for duplicates
+    if (teams.some(t => t.number === num)) {
+        alert('Team number already exists!')
+        return
+    }
+
+    addTeam({ name: n || 'Unnamed', number: num || '-' })
     setName('')
     setNumber('')
   }
@@ -52,7 +54,12 @@ export default function SetupPanel({
             number: String((r[numberIdx] || r[1] || '-')).trim()
           }))
           setTeams(prev => {
-            const combined = [...prev, ...list]
+            // Filter duplicates from the new list based on team number
+            const newTeams = list.filter(t => !prev.some(p => p.number === t.number));
+            if (newTeams.length < list.length) {
+              alert(`Skipped ${list.length - newTeams.length} duplicate teams`);
+            }
+            const combined = [...prev, ...newTeams]
             return combined.sort((a, b) => {
                 const numA = parseInt(a.number, 10) || 0;
                 const numB = parseInt(b.number, 10) || 0;
@@ -68,7 +75,12 @@ export default function SetupPanel({
           else { alert('JSON must be an array of teams or an object with a `teams` array'); return }
           const normalized = list.map(t => ({ name: (t.name || t.team || 'Unnamed'), number: String(t.number ?? t.num ?? t.teamNumber ?? '-') }))
           setTeams(prev => {
-            const combined = [...prev, ...normalized]
+            // Filter duplicates from the new list based on team number
+            const newTeams = normalized.filter(t => !prev.some(p => p.number === t.number));
+            if (newTeams.length < normalized.length) {
+              alert(`Skipped ${normalized.length - newTeams.length} duplicate teams`);
+            }
+            const combined = [...prev, ...newTeams]
             return combined.sort((a, b) => {
                 const numA = parseInt(a.number, 10) || 0;
                 const numB = parseInt(b.number, 10) || 0;
@@ -114,7 +126,7 @@ export default function SetupPanel({
                 onChange={e => setNumber(e.target.value.replace(/\D/g, ''))}
             />
             <div style={{display:'flex',justifyContent:'center',marginTop:8}}>
-                <button className="btn" onClick={addTeam}>Add Team</button>
+                <button className="btn" onClick={handleAddTeam}>Add Team</button>
             </div>
             </section>
 

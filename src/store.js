@@ -39,7 +39,9 @@ export const useStore = create(
       scoutName: legacy.scoutName || '',
 
       // Actions
-      setTeams: (teams) => set({ teams }),
+      setTeams: (teamsOrFn) => set((state) => ({
+        teams: typeof teamsOrFn === 'function' ? teamsOrFn(state.teams) : teamsOrFn
+      })),
       addTeam: (team) => set((state) => {
         const newTeams = [...state.teams, team]
         return { teams: newTeams.sort((a, b) => (parseInt(a.number) || 0) - (parseInt(b.number) || 0)) }
