@@ -4,7 +4,7 @@ This document defines the data structures and serialization formats used by Luna
 
 ## 1. QR Code Payload Format
 
-To maximize data density in QR codes, the application uses a compressed binary format encoded in Base64.
+To maximize data density in QR codes, the application uses a compressed binary format encoded in Base64. When shared via a URL link, the payload is typically attached to the `importedTeams` query parameter.
 
 ### Serialization Steps
 1.  **JSON Serialization**: The data object (Session or Package) is converted to a minified JSON string.
@@ -91,6 +91,23 @@ When exporting data (JSON file or QR code), records are wrapped in a **Session**
     }
   ]
 }
+```
+
+## 4. Team List Format
+
+When sharing a team list via QR code, the data is an array of team objects.
+
+```jsonc
+[
+  {
+    "number": "254",
+    "name": "The Cheesy Poofs"
+  },
+  {
+    "number": "1678",
+    "name": "Citrus Circuits"
+  }
+]
 ```
 
 ## Example JSON Blob (Single Record)

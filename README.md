@@ -13,6 +13,10 @@ Open the dev server URL printed by Vite (usually http://localhost:5173).
 
 ## Data Schema
 
+The application supports sharing data via QR codes, which are compressed using **Zlib** (via `pako`) to maximize data density. This allows for sharing entire team lists or match data packages between devices even without an internet connection.
+
+See `DATA_FORMATS.md` for a detailed technical breakdown of the serialization and compression steps.
+
 ### JSON Export Format
 ```json
 [

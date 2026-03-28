@@ -11,6 +11,7 @@ import ScoutingForm from './components/ScoutingForm'
 import DataManager from './components/DataManager'
 import AllianceSelectionModal from './components/Modals/AllianceSelectionModal'
 import QRCodeModal from './components/Modals/QRCodeModal'
+import pako from 'pako'
 
 export default function App() {
   const { trigger } = useWebHaptics({ debug: true });
@@ -103,12 +104,17 @@ export default function App() {
     const importedData = params.get('importedTeams')
     if (importedData) {
       try {
-        const decoded = JSON.parse(atob(importedData))
+        const binaryString = atob(importedData)
+        const bytes = new Uint8Array(binaryString.length)
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i)
+        }
+        const decompressed = pako.inflate(bytes, { to: 'string' })
+        const decoded = JSON.parse(decompressed)
+        
         if (Array.isArray(decoded) && decoded.length > 0) {
+          // Case 1: Team List
           if (window.confirm(`Found ${decoded.length} teams in URL. Do you want to IMPORT them? \n\nClick OK to Append to existing list, Cancel to Replace existing list.`)) {
-             // We need to use functional update based on current state, 
-             // but with Zustand we can just grab current state or pass a function to setTeams if it supported it.
-             // Our setTeams is simple. We can use the store's current state.
              const currentTeams = useStore.getState().teams
              const existingNums = new Set(currentTeams.map(t => t.number))
              const newTeams = decoded.filter(t => !existingNums.has(t.number))
@@ -122,7 +128,6 @@ export default function App() {
                    return numA - numB;
              });
              setTeams(combined)
-
           } else {
              if (window.confirm("Do you want to REPLACE your current team list with these teams? This cannot be undone.")) {
                 const sorted = decoded.sort((a, b) => {
@@ -133,6 +138,14 @@ export default function App() {
                 setTeams(sorted)
                 alert('Team list replaced.')
              }
+          }
+        } else if (decoded && decoded.data && Array.isArray(decoded.data)) {
+          // Case 2: Data Package (Session)
+          if (window.confirm(`Found a data package with ${decoded.data.length} records. Import to your archive?`)) {
+            const addArchive = useStore.getState().addArchive
+            addArchive(decoded)
+            alert('Package imported to archives.')
+            setActive('sync') // Switch to packages tab
           }
         }
       } catch (e) {
@@ -149,10 +162,16 @@ export default function App() {
       return
     }
     const rawPayload = JSON.stringify(teams)
-    if (rawPayload.length > 2000) {
+    
+    // Compress and Encode
+    const compressed = pako.deflate(rawPayload)
+    const binString = Array.from(compressed, (byte) => String.fromCodePoint(byte)).join('')
+    const b64 = btoa(binString)
+    
+    if (b64.length > 2953) {
       if (!window.confirm('Team list is large. The QR code might be dense. Continue?')) return
     }
-    const payload = encodeURIComponent(btoa(rawPayload))
+    const payload = encodeURIComponent(b64)
     setQrPayload(payload)
     setQrBaseUrl(`${window.location.origin}${window.location.pathname}`)
     setQrSettings({
