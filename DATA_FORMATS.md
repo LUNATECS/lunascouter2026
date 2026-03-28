@@ -48,7 +48,7 @@ The core data unit is a **Match Record**, representing one robot's performance i
 #### Autonomous Period
 | Field | Type | Possible Values | Description |
 | :--- | :--- | :--- | :--- |
-| `autoPosition` | `number` | `0` (None), `1`, `2`, `3`, `4` | Starting Position |
+| `autoPosition` | `number` | `0` (None), `1`, `2`, `3` (Center), `4`, `5` | Starting Position |
 | `autoFuelCollected`| `string` | `"Center Area"`, `"Human Player"`, `"Depot"`, `"None"` | Fuel Source |
 | `autoLevel` | `number` | `0` (None), `1` (L1) | Tower Level Scored |
 | `movedFromStart` | `boolean` | `true`, `false` | Left starting zone? |
@@ -103,7 +103,7 @@ When exporting data (JSON file or QR code), records are wrapped in a **Session**
   "timestamp": 1709300000000, // Unix Timestamp (number)
   "values": {
     // --- Auto Metrics ---
-    "autoPosition": 1, // 0=None, 1-4=Field zones
+    "autoPosition": 1, // 0=None, 1-5=Field zones
     "autoFuelCollected": "Center Area", // "Center Area", "Human Player", "Depot", "None"
     "autoLevel": 1, // 0=None, 1=L1
     "movedFromStart": true, // Whether robot left starting zone

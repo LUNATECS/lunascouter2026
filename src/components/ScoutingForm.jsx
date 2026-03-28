@@ -202,7 +202,7 @@ export default function ScoutingForm({
                   </span>
                 </div>
                 <div className="level-buttons" style={{gap:8}}>
-                  {[1, 2, 3, 4].map(pos => (
+                  {[1, 2, 3, 4, 5].map(pos => (
                     <button key={pos} className={`level-button ${autoPosition===pos? 'selected':''}`} style={{flex:1, minWidth:0, padding:'12px 0'}} onClick={() => { setAutoPosition(pos); trigger('selection'); }}>{pos}</button>
                   ))}
                 </div>
