@@ -60,7 +60,7 @@ The core data unit is a **Match Record**, representing one robot's performance i
 | `defense` | `boolean` | `true`, `false` | Played defense? |
 | `teleopScoredZeroFuel`| `boolean`| `true` (Scored), `false` (Zero) | Note: Logic inverted in UI labels |
 | `brokeDown` | `boolean` | `true`, `false` | Robot broke down? |
-| `relayedFuel` | `boolean` | `true`, `false` | Transported fuel? |
+| `relayedFuel` | `string` | `shuttled`, `lobbed`, `both`, `neither` | Shuttled or Lobbed Fuel |
 | `mobilityIssues` | `number` | `0`, `1`, `2`... | Count of issues |
 | `fieldCrossing` | `string` | `"Trench"`, `"Bump"`, `"Both"`, `"None"` | Crossing type |
 | `needsAttention` | `boolean` | `true`, `false` | Flag for review |

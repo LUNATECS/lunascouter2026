@@ -30,9 +30,11 @@ export default function ScoutingForm({
   const [teleopScoredZeroFuel, setTeleopScoredZeroFuel] = useState(false)
   const [defense, setDefense] = useState(false)
   const [needsAttention, setNeedsAttention] = useState(false)
+  const [fuelShuttledLobbed, setFuelShuttledLobbed] = useState(0)
   const [brokeDown, setBrokeDown] = useState(false)
-  const [relayedFuel, setRelayedFuel] = useState(false)
+  const [relayedFuel, setRelayedFuel] = useState('neither') 
   const [mobilityIssues, setMobilityIssues] = useState(0)
+  const [estimateRelay, setEstimateRelay] = useState(0)
   const [fieldCrossing, setFieldCrossing] = useState('None')
   const [endgameScoredZeroFuel, setEndgameScoredZeroFuel] = useState(true)
 
@@ -48,6 +50,7 @@ export default function ScoutingForm({
       autoFuelCollected !== 'None' ||
       autoLevel !== 0 ||
       teleopLevel !== 0 ||
+      fuelShuttledLobbed !== 0 ||
       teleopNote !== '' ||
       movedFromStart !== false ||
       autoScoredZeroFuel !== true ||
@@ -55,8 +58,9 @@ export default function ScoutingForm({
       defense !== false ||
       needsAttention !== false ||
       brokeDown !== false ||
-      relayedFuel !== false ||
+      relayedFuel !== null ||
       mobilityIssues !== 0 ||
+      estimateRelay !== 0 ||
       fieldCrossing !== 'None' ||
       endgameScoredZeroFuel !== true;
     
@@ -65,7 +69,7 @@ export default function ScoutingForm({
     selectedTeam, autoPosition, autoFuelCollected, autoLevel, 
     teleopLevel, teleopNote, movedFromStart, autoScoredZeroFuel, 
     teleopScoredZeroFuel, defense, needsAttention, brokeDown, relayedFuel, mobilityIssues,
-    fieldCrossing, endgameScoredZeroFuel,
+    estimateRelay, fieldCrossing, endgameScoredZeroFuel,
     setIsDirty
   ]);
 
@@ -100,6 +104,7 @@ export default function ScoutingForm({
         autoPosition,
         autoFuelCollected,
         teleopLevel,
+        fuelShuttledLobbed,
         teleopNote,
         movedFromStart,
         autoScoredZeroFuel,
@@ -109,6 +114,7 @@ export default function ScoutingForm({
         brokeDown,
         relayedFuel,
         mobilityIssues,
+        estimateRelay,
         fieldCrossing,
         endgameScoredZeroFuel
       }
@@ -116,6 +122,7 @@ export default function ScoutingForm({
     
     addRecord(rec)
     toast.success(`Match ${rec.matchNumber} submitted!`)
+    setFuelShuttledLobbed(0)
     trigger('success')
 
     // Reset Form (except match number which increments and scout name which stays)
@@ -135,8 +142,9 @@ export default function ScoutingForm({
     setDefense(false)
     setNeedsAttention(false)
     setBrokeDown(false)
-    setRelayedFuel(false)
+    setRelayedFuel('neither')
     setMobilityIssues(0)
+    setEstimateRelay(0)
     setFieldCrossing('None')
     setEndgameScoredZeroFuel(true)
   }
@@ -174,7 +182,11 @@ export default function ScoutingForm({
               onChange={e => setScoutName(e.target.value)}
               style={{width: 160, height: 40, padding: '0 12px', borderRadius: 20}}
             />
+            
           </div>
+          <div style={{marginTop: 32, display:'flex', justifyContent:'center', marginLeft: 10}}>
+        <button className="next-button" style={{width:'100%', maxWidth:'400px', minHeight:'60px', height:'auto', padding:'16px'}} onClick={handleInternalSubmit}>Submit Match</button>
+      </div>
         </div>
         <h2>Scouting</h2>
       </div>
@@ -268,18 +280,15 @@ export default function ScoutingForm({
                       <button className={`btn small yes-btn btn-multiline ${teleopScoredZeroFuel===true?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setTeleopScoredZeroFuel(true); trigger('selection'); }}>Scored Fuel</button>
                       <button className={`btn small no-btn btn-multiline ${teleopScoredZeroFuel===false?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setTeleopScoredZeroFuel(false); trigger('selection'); }}>Zero Fuel</button>
                     </div>
+                  
                   </div>
                   <div>
-                    <div style={{display:'flex',gap:8,marginTop:4}}>
+                    
+                <div style={{display:'flex',gap:8,marginTop:4}}>
                       <button className={`btn small no-btn btn-multiline ${brokeDown===true?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setBrokeDown(true); trigger('selection'); }}>Robot Broke Down</button>
                       <button className={`btn small yes-btn btn-multiline ${brokeDown===false?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setBrokeDown(false); trigger('selection'); }}>Robot has no issues</button>
                     </div>
-                  </div>
-                  <div>
-                    <div style={{display:'flex',gap:8,marginTop:4}}>
-                      <button className={`btn small yes-btn btn-multiline ${relayedFuel===true?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setRelayedFuel(true); trigger('selection'); }}>Transported Fuel</button>
-                      <button className={`btn small no-btn btn-multiline ${relayedFuel===false?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setRelayedFuel(false); trigger('selection'); }}>No Fuel Relay</button>
-                    </div>
+                    
                   </div>
                   <div>
                     <div style={{display:'flex',gap:8,marginTop:4}}>
@@ -288,8 +297,12 @@ export default function ScoutingForm({
                     </div>
                   </div>
                   <div>
-                    <div style={{fontWeight:700, fontSize:'13px', marginBottom:4}}>Mobility Issues</div>
+                    <div style={{display: 'flex', fontWeight:700, fontSize:'13px', marginBottom:8, marginLeft:20, gap: 70}}>   
+                      <div> Mobility Issues </div>
+                      <div>Estimate Balls transported</div>
+                      </div>
                     <div style={{display:'flex', alignItems:'center', gap:12}}>
+                      
                       <button 
                         className="btn small" 
                         style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
@@ -305,10 +318,36 @@ export default function ScoutingForm({
                       >
                         +
                       </button>
+                      <button 
+                        className="btn small" 
+                        style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 70}}
+                        onClick={() => { setEstimateRelay(Math.max(0, estimateRelay - 5)); trigger('selection'); }}
+                      >
+                        -
+                      </button>
+                      <div style={{fontSize: 24, fontWeight: 800, minWidth: 20, textAlign: 'center'}}>{estimateRelay}</div>
+                      <button 
+                        className="btn small" 
+                        style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+                        onClick={() => { setEstimateRelay(estimateRelay + 5); trigger('selection'); }}
+                      >
+                        +
+                      </button>
                     </div>
+                    
                   </div>
+      
                   <div style={{gridColumn: 'span 2'}}>
                     <div style={{fontWeight:700, fontSize:'13px', marginBottom:4}}>Field Crossing</div>
+
+                     <div style={{display:'flex',gap:6,marginTop:4}}>
+                      <button className={`btn small yes-btn btn-multiline ${relayedFuel==='shuttled'?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setRelayedFuel('shuttled'); trigger('selection'); }}>Shuttled Fuel</button>
+                      <button className={`btn small no-btn btn-multiline ${relayedFuel==='lobbed'?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setRelayedFuel('lobbed'); trigger('selection'); }}>Lobbed Fuel</button>
+                      <button className={`btn small both-btn btn-multiline ${relayedFuel==='both'?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setRelayedFuel('both'); trigger('selection'); }}>Both</button>
+                      <button className={`btn small neither-btn btn-multiline ${relayedFuel==='neither'?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setRelayedFuel('neither'); trigger('selection'); }}>None</button>
+                    </div>
+
+
                     <div style={{display:'flex', gap:8}}>
                       {['Trench', 'Bump', 'Both', 'None'].map(type => (
                         <button 
@@ -320,6 +359,7 @@ export default function ScoutingForm({
                           {type}
                         </button>
                       ))}
+                      
                     </div>
                   </div>
                 </div>
@@ -360,9 +400,7 @@ export default function ScoutingForm({
           </div>
         </div>
       </div>
-      <div style={{marginTop: 32, display:'flex', justifyContent:'center'}}>
-        <button className="next-button" style={{width:'100%', maxWidth:'400px', minHeight:'60px', height:'auto', padding:'16px'}} onClick={handleInternalSubmit}>Submit Match</button>
-      </div>
+      
 
       <FieldSelectionModal
         show={showFieldModal}
