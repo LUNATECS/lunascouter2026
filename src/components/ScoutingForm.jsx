@@ -298,36 +298,36 @@ export default function ScoutingForm({
                   <div style={{fontWeight:700, fontSize:'13px'}}>Mobility Issues</div>
                   <div style={{fontWeight:700, fontSize:'13px'}}>Estimate Balls transported</div>
                   
-                  <div style={{display:'flex', alignItems:'center', gap:12}}>
+                  <div style={{display:'flex', alignItems:'center', justifyContent: 'center', gap:12}}>
                     <button 
-                      className="btn small" 
-                      style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+                      className="btn medium" 
+                      style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: '32px !important', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
                       onClick={() => { setMobilityIssues(Math.max(0, mobilityIssues - 1)); trigger('selection'); }}
                     >
                       -
                     </button>
                     <div style={{fontSize: 24, fontWeight: 800, width: 80, textAlign: 'center'}}>{mobilityIssues}</div>
                     <button 
-                      className="btn small" 
-                      style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+                      className="btn medium" 
+                      style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: '32px !important', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
                       onClick={() => { setMobilityIssues(mobilityIssues + 1); trigger('selection'); }}
                     >
                       +
                     </button>
                   </div>
                   
-                  <div style={{display:'flex', alignItems:'center', gap:12}}>
+                  <div style={{display:'flex', alignItems:'center', justifyContent: 'center', gap:12}}>
                     <button 
-                      className="btn small" 
-                      style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+                      className="btn medium" 
+                      style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: '32px !important', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
                       onClick={() => { setEstimateRelay(Math.max(0, estimateRelay - 5)); trigger('selection'); }}
                     >
                       -
                     </button>
                     <div style={{fontSize: 24, fontWeight: 800, width: 80, textAlign: 'center'}}>{estimateRelay}</div>
                     <button 
-                      className="btn small" 
-                      style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+                      className="btn medium" 
+                      style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: '32px !important', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
                       onClick={() => { setEstimateRelay(estimateRelay + 5); trigger('selection'); }}
                     >
                       +
