@@ -182,11 +182,10 @@ export default function ScoutingForm({
               onChange={e => setScoutName(e.target.value)}
               style={{width: 160, height: 40, padding: '0 12px', borderRadius: 20}}
             />
-            
           </div>
-          <div style={{marginTop: 32, display:'flex', justifyContent:'center', marginLeft: 10}}>
-        <button className="next-button" style={{width:'100%', maxWidth:'400px', minHeight:'60px', height:'auto', padding:'16px'}} onClick={handleInternalSubmit}>Submit Match</button>
-      </div>
+          <div className="control-group">
+            <button className="next-button" style={{height: 40, minHeight: 40, padding: '0 24px', fontSize: '18px', borderRadius: 20, width: 'auto'}} onClick={handleInternalSubmit}>Submit Match</button>
+          </div>
         </div>
         <h2>Scouting</h2>
       </div>
