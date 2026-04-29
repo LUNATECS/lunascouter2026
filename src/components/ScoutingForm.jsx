@@ -270,76 +270,73 @@ export default function ScoutingForm({
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',columnGap:24, rowGap:12}}>
                   <div>
                     <div style={{display:'flex',gap:8,marginTop:4}}>
-                      <button className={`btn small yes-btn btn-multiline ${defense===true?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setDefense(true); trigger('selection'); }}>Played Defense</button>
-                      <button className={`btn small no-btn btn-multiline ${defense===false?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setDefense(false); trigger('selection'); }}>No Defense</button>
+                      <button className={`btn small yes-btn btn-multiline ${defense===true?'selected':''}`} style={{padding:'8px 4px', flex: 1}} onClick={() => { setDefense(true); trigger('selection'); }}>Played Defense</button>
+                      <button className={`btn small no-btn btn-multiline ${defense===false?'selected':''}`} style={{padding:'8px 4px', flex: 1}} onClick={() => { setDefense(false); trigger('selection'); }}>No Defense</button>
                     </div>
                   </div>
                   <div>
                     <div style={{display:'flex',gap:8,marginTop:4}}>
-                      <button className={`btn small yes-btn btn-multiline ${teleopScoredZeroFuel===true?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setTeleopScoredZeroFuel(true); trigger('selection'); }}>Scored Fuel</button>
-                      <button className={`btn small no-btn btn-multiline ${teleopScoredZeroFuel===false?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setTeleopScoredZeroFuel(false); trigger('selection'); }}>Zero Fuel</button>
+                      <button className={`btn small yes-btn btn-multiline ${teleopScoredZeroFuel===true?'selected':''}`} style={{padding:'8px 4px', flex: 1}} onClick={() => { setTeleopScoredZeroFuel(true); trigger('selection'); }}>Scored Fuel</button>
+                      <button className={`btn small no-btn btn-multiline ${teleopScoredZeroFuel===false?'selected':''}`} style={{padding:'8px 4px', flex: 1}} onClick={() => { setTeleopScoredZeroFuel(false); trigger('selection'); }}>Zero Fuel</button>
                     </div>
+                  </div>
+                  <div>
+                    <div style={{display:'flex',gap:8,marginTop:4}}>
+                      <button className={`btn small no-btn btn-multiline ${brokeDown===true?'selected':''}`} style={{padding:'8px 4px', flex: 1}} onClick={() => { setBrokeDown(true); trigger('selection'); }}>Robot Broke Down</button>
+                      <button className={`btn small yes-btn btn-multiline ${brokeDown===false?'selected':''}`} style={{padding:'8px 4px', flex: 1}} onClick={() => { setBrokeDown(false); trigger('selection'); }}>Robot has no issues</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{display:'flex',gap:8,marginTop:4}}>
+                      <button className={`btn small no-btn btn-multiline ${needsAttention===true?'selected':''}`} style={{padding:'8px 4px', flex: 1}} onClick={() => { setNeedsAttention(true); trigger('selection'); }}>Needs Match Review</button>
+                      <button className={`btn small yes-btn btn-multiline ${needsAttention===false?'selected':''}`} style={{padding:'8px 4px', flex: 1}} onClick={() => { setNeedsAttention(false); trigger('selection'); }}>Good Scouting</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 24, rowGap: 8}}>
+                  <div style={{fontWeight:700, fontSize:'13px'}}>Mobility Issues</div>
+                  <div style={{fontWeight:700, fontSize:'13px'}}>Estimate Balls transported</div>
                   
+                  <div style={{display:'flex', alignItems:'center', gap:12}}>
+                    <button 
+                      className="btn small" 
+                      style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+                      onClick={() => { setMobilityIssues(Math.max(0, mobilityIssues - 1)); trigger('selection'); }}
+                    >
+                      -
+                    </button>
+                    <div style={{fontSize: 24, fontWeight: 800, width: 80, textAlign: 'center'}}>{mobilityIssues}</div>
+                    <button 
+                      className="btn small" 
+                      style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+                      onClick={() => { setMobilityIssues(mobilityIssues + 1); trigger('selection'); }}
+                    >
+                      +
+                    </button>
                   </div>
-                  <div>
-                    
-                <div style={{display:'flex',gap:8,marginTop:4}}>
-                      <button className={`btn small no-btn btn-multiline ${brokeDown===true?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setBrokeDown(true); trigger('selection'); }}>Robot Broke Down</button>
-                      <button className={`btn small yes-btn btn-multiline ${brokeDown===false?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setBrokeDown(false); trigger('selection'); }}>Robot has no issues</button>
-                    </div>
-                    
+                  
+                  <div style={{display:'flex', alignItems:'center', gap:12}}>
+                    <button 
+                      className="btn small" 
+                      style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+                      onClick={() => { setEstimateRelay(Math.max(0, estimateRelay - 5)); trigger('selection'); }}
+                    >
+                      -
+                    </button>
+                    <div style={{fontSize: 24, fontWeight: 800, width: 80, textAlign: 'center'}}>{estimateRelay}</div>
+                    <button 
+                      className="btn small" 
+                      style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
+                      onClick={() => { setEstimateRelay(estimateRelay + 5); trigger('selection'); }}
+                    >
+                      +
+                    </button>
                   </div>
-                  <div>
-                    <div style={{display:'flex',gap:8,marginTop:4}}>
-                      <button className={`btn small no-btn btn-multiline ${needsAttention===true?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setNeedsAttention(true); trigger('selection'); }}>Needs Match Review</button>
-                      <button className={`btn small yes-btn btn-multiline ${needsAttention===false?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setNeedsAttention(false); trigger('selection'); }}>Good Scouting</button>
-                    </div>
-                  </div>
-                  <div>
-                    <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 24, rowGap: 8}}>
-                      <div style={{fontWeight:700, fontSize:'13px'}}>Mobility Issues</div>
-                      <div style={{fontWeight:700, fontSize:'13px'}}>Estimate Balls transported</div>
-                      
-                      <div style={{display:'flex', alignItems:'center', gap:12}}>
-                        <button 
-                          className="btn small" 
-                          style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
-                          onClick={() => { setMobilityIssues(Math.max(0, mobilityIssues - 1)); trigger('selection'); }}
-                        >
-                          -
-                        </button>
-                        <div style={{fontSize: 24, fontWeight: 800, width: 80, textAlign: 'center'}}>{mobilityIssues}</div>
-                        <button 
-                          className="btn small" 
-                          style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
-                          onClick={() => { setMobilityIssues(mobilityIssues + 1); trigger('selection'); }}
-                        >
-                          +
-                        </button>
-                      </div>
-                      
-                      <div style={{display:'flex', alignItems:'center', gap:12}}>
-                        <button 
-                          className="btn small" 
-                          style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
-                          onClick={() => { setEstimateRelay(Math.max(0, estimateRelay - 5)); trigger('selection'); }}
-                        >
-                          -
-                        </button>
-                        <div style={{fontSize: 24, fontWeight: 800, width: 80, textAlign: 'center'}}>{estimateRelay}</div>
-                        <button 
-                          className="btn small" 
-                          style={{width: 44, height: 44, borderRadius: '50%', padding: 0, minWidth: 'auto', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center'}}
-                          onClick={() => { setEstimateRelay(estimateRelay + 5); trigger('selection'); }}
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-      
-                  <div style={{gridColumn: 'span 2'}}>
-                    <div style={{fontWeight:700, fontSize:'13px', marginBottom:4}}>Field Crossing</div>
+                </div>
+
+                <div>
+                  <div style={{fontWeight:700, fontSize:'13px', marginBottom:4}}>Field Crossing</div>
 
                      <div style={{display:'flex',gap:6,marginTop:4}}>
                       <button className={`btn small yes-btn btn-multiline ${relayedFuel==='shuttled'?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setRelayedFuel('shuttled'); trigger('selection'); }}>Shuttled Fuel</button>
@@ -361,7 +358,6 @@ export default function ScoutingForm({
                         </button>
                       ))}
                       
-                    </div>
                   </div>
                 </div>
               </div>
