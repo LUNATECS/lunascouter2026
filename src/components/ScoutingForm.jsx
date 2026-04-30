@@ -58,7 +58,7 @@ export default function ScoutingForm({
       defense !== false ||
       needsAttention !== false ||
       brokeDown !== false ||
-      relayedFuel !== null ||
+      relayedFuel !== 'neither' ||
       mobilityIssues !== 0 ||
       estimateRelay !== 0 ||
       fieldCrossing !== 'None' ||

@@ -130,7 +130,7 @@ When sharing a team list via QR code, the data is an array of team objects.
     "defense": false, // Whether robot played defense
     "teleopScoredZeroFuel": false, // true=Scored Fuel, false=Zero Fuel
     "brokeDown": false, // Mechanical failure flag
-    "relayedFuel": true, // Whether robot transported fuel across field
+    "relayedFuel": "shuttled", // "shuttled", "lobbed", "both", "neither"
     "mobilityIssues": 0, // Count of movement/stalling issues
     "fieldCrossing": "Trench", // "Trench", "Bump", "Both", "None"
     "needsAttention": false, // Manual review flag

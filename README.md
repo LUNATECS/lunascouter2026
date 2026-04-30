@@ -37,7 +37,7 @@ See `DATA_FORMATS.md` for a detailed technical breakdown of the serialization an
       "defense": true,
       "needsAttention": false,
       "brokeDown": false,
-      "relayedFuel": true
+      "relayedFuel": "shuttled"
     },
     "teamName": "Blazing Bulldogs"
   }
@@ -48,5 +48,5 @@ See `DATA_FORMATS.md` for a detailed technical breakdown of the serialization an
 The CSV export flattens the structure:
 ```csv
 team,matchNumber,position,timestamp,autoLevel,teleopLevel,teleopNote,movedFromStart,autoScoredZeroFuel,teleopScoredZeroFuel,defense,needsAttention,brokeDown,relayedFuel,discarded,scoutName
-"581","1","Red 1","1738454400000","2","3","Great defense, fast cycles","true","false","true","true","false","false","true","false","John Doe"
+"581","1","Red 1","1738454400000","2","3","Great defense, fast cycles","true","false","true","true","false","false","shuttled","false","John Doe"
 ```
