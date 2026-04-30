@@ -32,7 +32,7 @@ export default function ScoutingForm({
   const [needsAttention, setNeedsAttention] = useState(false)
   const [fuelShuttledLobbed, setFuelShuttledLobbed] = useState(0)
   const [brokeDown, setBrokeDown] = useState(false)
-  const [relayedFuel, setRelayedFuel] = useState('neither') 
+  const [relayedFuel, setRelayedFuel] = useState('none') 
   const [mobilityIssues, setMobilityIssues] = useState(0)
   const [estimateRelay, setEstimateRelay] = useState(0)
   const [fieldCrossing, setFieldCrossing] = useState('None')
@@ -58,7 +58,7 @@ export default function ScoutingForm({
       defense !== false ||
       needsAttention !== false ||
       brokeDown !== false ||
-      relayedFuel !== 'neither' ||
+      relayedFuel !== 'none' ||
       mobilityIssues !== 0 ||
       estimateRelay !== 0 ||
       fieldCrossing !== 'None' ||
@@ -142,7 +142,7 @@ export default function ScoutingForm({
     setDefense(false)
     setNeedsAttention(false)
     setBrokeDown(false)
-    setRelayedFuel('neither')
+    setRelayedFuel('none')
     setMobilityIssues(0)
     setEstimateRelay(0)
     setFieldCrossing('None')
@@ -342,7 +342,7 @@ export default function ScoutingForm({
                       <button className={`btn small yes-btn btn-multiline ${relayedFuel==='shuttled'?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setRelayedFuel('shuttled'); trigger('selection'); }}>Shuttled Fuel</button>
                       <button className={`btn small no-btn btn-multiline ${relayedFuel==='lobbed'?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setRelayedFuel('lobbed'); trigger('selection'); }}>Lobbed Fuel</button>
                       <button className={`btn small both-btn btn-multiline ${relayedFuel==='both'?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setRelayedFuel('both'); trigger('selection'); }}>Both</button>
-                      <button className={`btn small neither-btn btn-multiline ${relayedFuel==='neither'?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setRelayedFuel('neither'); trigger('selection'); }}>None</button>
+                      <button className={`btn small none-btn btn-multiline ${relayedFuel==='none'?'selected':''}`} style={{padding:'8px 4px'}} onClick={() => { setRelayedFuel('none'); trigger('selection'); }}>None</button>
                     </div>
 
 
