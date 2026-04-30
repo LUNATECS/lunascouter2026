@@ -30,7 +30,6 @@ export default function ScoutingForm({
   const [teleopScoredZeroFuel, setTeleopScoredZeroFuel] = useState(false)
   const [defense, setDefense] = useState(false)
   const [needsAttention, setNeedsAttention] = useState(false)
-  const [fuelShuttledLobbed, setFuelShuttledLobbed] = useState(0)
   const [brokeDown, setBrokeDown] = useState(false)
   const [relayedFuel, setRelayedFuel] = useState('none') 
   const [mobilityIssues, setMobilityIssues] = useState(0)
@@ -50,7 +49,6 @@ export default function ScoutingForm({
       autoFuelCollected !== 'None' ||
       autoLevel !== 0 ||
       teleopLevel !== 0 ||
-      fuelShuttledLobbed !== 0 ||
       teleopNote !== '' ||
       movedFromStart !== false ||
       autoScoredZeroFuel !== true ||
@@ -104,7 +102,6 @@ export default function ScoutingForm({
         autoPosition,
         autoFuelCollected,
         teleopLevel,
-        fuelShuttledLobbed,
         teleopNote,
         movedFromStart,
         autoScoredZeroFuel,
@@ -122,7 +119,6 @@ export default function ScoutingForm({
     
     addRecord(rec)
     toast.success(`Match ${rec.matchNumber} submitted!`)
-    setFuelShuttledLobbed(0)
     trigger('success')
 
     // Reset Form (except match number which increments and scout name which stays)

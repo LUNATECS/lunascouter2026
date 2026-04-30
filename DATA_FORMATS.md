@@ -39,8 +39,11 @@ The core data unit is a **Match Record**, representing one robot's performance i
 | :--- | :--- | :--- |
 | `team` | `string` | Team number (e.g. "254") |
 | `matchNumber` | `number` | Current match number |
+| `position` | `string` | Alliance position (e.g. "Red 1", "Blue 2") |
 | `scoutName` | `string` | Name of the scout |
 | `timestamp` | `number` | Unix Timestamp (ms) |
+| `version` | `string` | Application version (e.g. "2.0.1") |
+| `discarded` | `boolean` | Flag for record deletion status |
 | `values` | `object` | Container for all match metrics |
 
 ### Values Object (`values`)
@@ -62,6 +65,7 @@ The core data unit is a **Match Record**, representing one robot's performance i
 | `brokeDown` | `boolean` | `true`, `false` | Robot broke down? |
 | `relayedFuel` | `string` | `shuttled`, `lobbed`, `both`, `none` | Shuttled or Lobbed Fuel |
 | `mobilityIssues` | `number` | `0`, `1`, `2`... | Count of issues |
+| `estimateRelay` | `number` | `0`, `5`, `10`... | Estimated balls transported |
 | `fieldCrossing` | `string` | `"Trench"`, `"Bump"`, `"Both"`, `"None"` | Crossing type |
 | `needsAttention` | `boolean` | `true`, `false` | Flag for review |
 
@@ -116,8 +120,11 @@ When sharing a team list via QR code, the data is an array of team objects.
 {
   "team": "254", // Team number (string)
   "matchNumber": 42, // Current match number
+  "position": "Red 1", // Alliance Position
   "scoutName": "John Doe", // Name of the scout
   "timestamp": 1709300000000, // Unix Timestamp (number)
+  "version": "2.0.1", // App version
+  "discarded": false, // Deletion flag
   "values": {
     // --- Auto Metrics ---
     "autoPosition": 1, // 0=None, 1-5=Field zones
@@ -132,6 +139,7 @@ When sharing a team list via QR code, the data is an array of team objects.
     "brokeDown": false, // Mechanical failure flag
     "relayedFuel": "shuttled", // "shuttled", "lobbed", "both", "none"
     "mobilityIssues": 0, // Count of movement/stalling issues
+    "estimateRelay": 10, // Estimated balls transported
     "fieldCrossing": "Trench", // "Trench", "Bump", "Both", "None"
     "needsAttention": false, // Manual review flag
     
